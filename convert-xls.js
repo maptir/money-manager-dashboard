@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // Convert a Money Manager Excel export (.xls — actually an HTML table) into
-// data/data.js (what dashboard.html loads), plus data/transactions.csv and
+// data/data.js (what index.html loads), plus data/transactions.csv and
 // data/transactions.json as portable copies for Excel/other tools.
 // Usage: node convert-xls.js "data\2018-07-06_2026-07-31.xls"
 const fs = require("fs");
@@ -45,7 +45,7 @@ console.log(`parsed ${rows.length} rows (${rows[0].date} .. ${rows[rows.length -
 const root = __dirname;
 fs.mkdirSync(path.join(root, "data"), { recursive: true });
 
-// data/data.js — what dashboard.html actually loads via <script src>.
+// data/data.js — what index.html actually loads via <script src>.
 // A real fetch() of a .json/.csv from a file:// page is blocked by browser
 // CORS with no local server; a <script src> to a sibling file is not, so the
 // data ships as a JS file that just assigns a global.

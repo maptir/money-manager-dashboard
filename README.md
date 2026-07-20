@@ -6,7 +6,7 @@ Read-only income/expense dashboard for the RealByte Money Manager app.
 
 **A. Load a file in the dashboard (no scripts needed)**
 1. In the app (or PC Manager web page) export the Excel file for the date range you want.
-2. Open `dashboard.html` → click **⤒ load data** (or drag the `.xls` file onto the page). Accepts the app's `.xls` export or `transactions.json`.
+2. Open `index.html` → click **⤒ load data** (or drag the `.xls` file onto the page). Accepts the app's `.xls` export or `transactions.json`.
 3. The loaded file is remembered in the browser (localStorage) until you click **✕ use embedded data**.
 
 **B. Regenerate `data/data.js` (dashboard folder stays double-click, no server)**
@@ -17,7 +17,7 @@ Both write `data/data.js` (what the dashboard loads) plus `data/transactions.csv
 
 ## Files
 
-- `dashboard.html` — the dashboard page. ~64 KB — no data or libraries baked in.
+- `index.html` — the dashboard page. ~64 KB — no data or libraries baked in.
 - `lib/chart.min.js` — Chart.js, loaded via `<script src>`.
 - `data/data.js` — the transactions the dashboard loads, also via `<script src>`.
 - `data/transactions.csv` / `data/transactions.json` — same data, portable formats for Excel/other tools.
@@ -26,10 +26,10 @@ Both write `data/data.js` (what the dashboard loads) plus `data/transactions.csv
 
 ## Why not just `fetch()` a CSV/JSON file?
 
-Opening `dashboard.html` directly (`file://…`, no server) is a hard requirement — that's what makes it double-click-and-go. Browsers block `fetch()`/`XMLHttpRequest` to local files from a `file://` page (CORS), but they do **not** block `<script src="…">` to a sibling local file — it's a script load, not a cross-origin request. So the data ships as `data/data.js` (a `.js` file that just assigns `window.MM_DATA`) instead of a `.json`/`.csv` the page would have to fetch. The CSV/JSON copies still get written for opening in Excel or feeding other tools — the dashboard just doesn't read them directly.
+Opening `index.html` directly (`file://…`, no server) is a hard requirement — that's what makes it double-click-and-go. Browsers block `fetch()`/`XMLHttpRequest` to local files from a `file://` page (CORS), but they do **not** block `<script src="…">` to a sibling local file — it's a script load, not a cross-origin request. So the data ships as `data/data.js` (a `.js` file that just assigns `window.MM_DATA`) instead of a `.json`/`.csv` the page would have to fetch. The CSV/JSON copies still get written for opening in Excel or feeding other tools — the dashboard just doesn't read them directly.
 
 If you'd rather work with real CSV+fetch (e.g. to hack on the data loading yourself), run any static file server from this folder (`npx serve`, `python -m http.server`, etc.) and fetch works normally too — just not needed for the shipped setup.
 
 ## Moving the dashboard
 
-Keep `dashboard.html`, `lib/`, and `data/` together (same relative layout) — copy the whole `money-manager` folder if you want to share or archive it elsewhere.
+Keep `index.html`, `lib/`, and `data/` together (same relative layout) — copy the whole `money-manager` folder if you want to share or archive it elsewhere.

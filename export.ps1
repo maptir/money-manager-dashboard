@@ -81,7 +81,7 @@ foreach ($entry in ($years | Sort-Object { $_.Year })) {
 $sorted = $transactions | Sort-Object date
 $json = ConvertTo-Json -InputObject @($sorted) -Depth 4 -Compress
 
-# data/data.js is what dashboard.html loads via <script src> (a plain fetch()
+# data/data.js is what index.html loads via <script src> (a plain fetch()
 # of a local .json/.csv is blocked by browser CORS on file:// with no server;
 # a same-folder <script src> is not, so the data ships as a JS file).
 $exportedAt = (Get-Date).ToString("yyyy-MM-dd HH:mm")
@@ -100,4 +100,4 @@ $csvPath = Join-Path $dataDir "transactions.csv"
 $sorted | Select-Object $csvCols | Export-Csv -Path $csvPath -NoTypeInformation -Encoding utf8
 Write-Host ("Wrote {0}" -f $csvPath)
 
-Write-Host "Done. Open dashboard.html" -ForegroundColor Green
+Write-Host "Done. Open index.html" -ForegroundColor Green
