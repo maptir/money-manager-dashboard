@@ -1,0 +1,7 @@
+# personal financial data — never commit
+data/
+exports/
+
+# OS/editor cruft
+Thumbs.db
+.DS_Store
