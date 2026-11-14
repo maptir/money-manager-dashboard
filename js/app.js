@@ -30,19 +30,54 @@
     Object.keys(incomeCatAll).sort((a, b) => incomeCatAll[ b ] - incomeCatAll[ a ]).forEach((c, i) => { incomeSlot[ c ] = i; });
     years = [ ...new Set(raw.map(t => t.d.getFullYear())) ].sort();
     lastDate = raw.length ? raw[ raw.length - 1 ].d : new Date();
-    period = { label: "All time", start: null, end: null };
+    // open on the current month (or the latest month with real data if the export is older)
+    const openYm = MM.defaultMonth(raw, todayIso());
+    period = openYm ? monthPeriod(openYm) : { label: "All time", start: null, end: null };
     document.getElementById("exportedAt").textContent = sourceLabel || "";
+    renderStale();
     populateTrendSel();
     populateTxCat();
     buildFilters();
     renderAll();
   }
 
+  const todayIso = () => MM.isoDate(new Date());
+  function monthPeriod(ym) {
+    const y = +ym.slice(0, 4), m = +ym.slice(5, 7) - 1;
+    return { label: `${MONTHS[ m ]} ${y}`, start: new Date(y, m, 1), end: new Date(y, m + 1, 0) };
+  }
+  // "YYYY-MM" when the period is exactly one calendar month, else null
+  const periodMonth = p => p.start ? MM.singleMonth(MM.isoDate(p.start), MM.isoDate(p.end)) : null;
+
+  // warn when the export has not been refreshed for a while
+  function renderStale() {
+    const el = document.getElementById("staleData");
+    const s = MM.staleness(raw, todayIso());
+    el.style.display = s && s.stale ? "block" : "none";
+    if (s && s.stale) el.innerHTML = `Data may be out of date — the latest transaction is from <b>${s.latest}</b> (${s.days} days ago). Export a new file from the Money Manager app, then use <b>⤒ load data</b>.`;
+  }
+
   function setPeriod(p) {
     period = p;
-    document.querySelectorAll("#filters button").forEach(b => b.classList.toggle("active", b.textContent === p.label));
     txState.page = 1;
+    syncFilters();
     renderAll();
+  }
+
+  // make every filter control show the active period
+  function syncFilters() {
+    const same = (a, b) => (a ? +a : 0) === (b ? +b : 0);
+    document.querySelectorAll("#filters button.preset").forEach(b =>
+      b.classList.toggle("active", same(b._period.start, period.start) && same(b._period.end, period.end)));
+    const ym = periodMonth(period);
+    const bounds = MM.monthBounds(raw, todayIso());
+    document.getElementById("monthLabel").textContent = ym ? monthPeriod(ym).label : period.label;
+    document.getElementById("monthPrev").disabled = !bounds || (ym != null && ym <= bounds.min);
+    document.getElementById("monthNext").disabled = !bounds || (ym != null && ym >= bounds.max);
+    if (ym) {
+      document.getElementById("yearSel").value = ym.slice(0, 4);
+      document.getElementById("monthSel").value = String(+ym.slice(5, 7) - 1);
+    }
   }
 
   function buildFilters() {
@@ -79,10 +114,29 @@
     const resetDropdowns = () => { yearSel.value = ""; monthSel.value = ""; };
     const resetDates = () => { startInp.value = ""; endInp.value = ""; };
 
+    // month stepper: ‹ Nov 2026 ›
+    const stepper = document.createElement("span");
+    stepper.className = "stepper";
+    stepper.innerHTML = `<button id="monthPrev" title="Previous month" aria-label="Previous month">‹</button><span id="monthLabel" aria-live="polite"></span><button id="monthNext" title="Next month" aria-label="Next month">›</button>`;
+    el.appendChild(stepper);
+    const step = delta => {
+      const bounds = MM.monthBounds(raw, todayIso());
+      if (!bounds) return;
+      const cur = periodMonth(period);
+      // from a longer period the first click lands on its last month (never past the data we really have)
+      const target = cur ? MM.stepMonth(cur, delta, bounds)
+        : MM.stepMonth(period.end ? MM.isoDate(new Date(Math.min(period.end, Date.now()))).slice(0, 7) : (MM.defaultMonth(raw, todayIso()) || bounds.max), 0, bounds);
+      resetDates();
+      setPeriod(monthPeriod(target));
+    };
+    stepper.querySelector("#monthPrev").onclick = () => step(-1);
+    stepper.querySelector("#monthNext").onclick = () => step(1);
+
     presets.forEach(p => {
       const b = document.createElement("button");
+      b.className = "preset";
       b.textContent = p.label;
-      if (p.label === period.label) b.classList.add("active");
+      b._period = p;
       b.onclick = () => { resetDropdowns(); resetDates(); setPeriod(p); };
       el.appendChild(b);
     });
@@ -117,6 +171,7 @@
     el.appendChild(sep);
     el.appendChild(startInp);
     el.appendChild(endInp);
+    syncFilters();
   }
 
   const inPeriod = t => (!period.start || (t.d >= period.start && t.d <= period.end));
