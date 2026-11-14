@@ -17,12 +17,16 @@ Both write `data/data.js` (what the dashboard loads) plus `data/transactions.csv
 
 ## Files
 
-- `index.html` — the dashboard page. ~64 KB — no data or libraries baked in.
+- `index.html` + `dashboard.css` — the dashboard page markup and styles. No data, logic or libraries baked in.
+- `js/app.js` — the dashboard logic (filters, charts, tables, file loading).
+- `js/parse.js` — the one parser for the app's `.xls` export and `transactions.json`. Plain functions with no DOM, shared by the page and by `convert-xls.js`.
 - `lib/chart.min.js` — Chart.js, loaded via `<script src>`.
 - `data/data.js` — the transactions the dashboard loads, also via `<script src>`.
 - `data/transactions.csv` / `data/transactions.json` — same data, portable formats for Excel/other tools.
 - `convert-xls.js` — converts an app `.xls` export (it's an HTML table, hence Excel's format warning) into the files above.
 - `export.ps1` — pulls per-year `.xls` files into `exports/` + regenerates the files above, straight from the phone's PC Manager server.
+- `test/` — tests for the plain-function modules. Run `node --test` (Node 18+, nothing to install).
+- `.claude/serve.js` — optional dev-only static server (`node .claude/serve.js` → http://localhost:4173). The dashboard never needs it.
 
 ## Why not just `fetch()` a CSV/JSON file?
 
@@ -32,4 +36,4 @@ If you'd rather work with real CSV+fetch (e.g. to hack on the data loading yours
 
 ## Moving the dashboard
 
-Keep `index.html`, `lib/`, and `data/` together (same relative layout) — copy the whole `money-manager` folder if you want to share or archive it elsewhere.
+Keep `index.html`, `dashboard.css`, `js/`, `lib/`, and `data/` together (same relative layout) — copy the whole `money-manager` folder if you want to share or archive it elsewhere.

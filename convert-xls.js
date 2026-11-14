@@ -5,40 +5,19 @@
 // Usage: node convert-xls.js "data\2018-07-06_2026-07-31.xls"
 const fs = require("fs");
 const path = require("path");
+const { parseXlsHtml } = require("./js/parse.js"); // same parser the dashboard's "load data" uses
 
 const input = process.argv[2];
 if (!input) { console.error("usage: node convert-xls.js <export.xls>"); process.exit(1); }
-const html = fs.readFileSync(input, "utf8");
 
-const trs = html.match(/<tr[^>]*>[\s\S]*?<\/tr>/gi) || [];
-if (trs.length < 2) { console.error("no table rows found in " + input); process.exit(1); }
-const cellsOf = tr => (tr.match(/<td[^>]*>([\s\S]*?)<\/td>/gi) || [])
-  .map(c => c.replace(/<[^>]+>/g, "").replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&nbsp;/g, " ").trim());
-
-const header = cellsOf(trs[0]).map(h => h.toLowerCase());
-const col = n => header.indexOf(n);
-const iDate = col("date"), iType = col("income/expense"), iCat = col("category"),
-      iSub = col("subcategory"), iNote = col("note"), iDesc = col("description"),
-      iAcc = col("account"), iAmt = col("thb") >= 0 ? col("thb") : col("amount");
-if (iDate < 0 || iType < 0 || iAmt < 0) { console.error("unrecognized columns: " + header.join(", ")); process.exit(1); }
-
-const rows = [];
-for (const tr of trs.slice(1)) {
-  const c = cellsOf(tr);
-  const dm = (c[iDate] || "").split(" ")[0].split("/"); // DD/MM/YYYY [HH:mm:ss]
-  if (dm.length !== 3) continue;
-  rows.push({
-    date: `${dm[2]}-${dm[1].padStart(2, "0")}-${dm[0].padStart(2, "0")}`,
-    type: c[iType],
-    category: iCat >= 0 ? c[iCat] : "",
-    subCategory: iSub >= 0 ? c[iSub] : "",
-    content: iNote >= 0 ? c[iNote] : "",
-    detail: iDesc >= 0 ? c[iDesc] : "",
-    amount: parseFloat(String(c[iAmt]).replace(/,/g, "")) || 0,
-    assetId: "",
-    payType: iAcc >= 0 ? c[iAcc] : "",
-  });
+let rows;
+try {
+  rows = parseXlsHtml(fs.readFileSync(input, "utf8"));
+} catch (err) {
+  console.error(`${err.message} (${input})`);
+  process.exit(1);
 }
+if (!rows.length) { console.error("no transactions found in " + input); process.exit(1); }
 rows.sort((a, b) => a.date < b.date ? -1 : a.date > b.date ? 1 : 0);
 console.log(`parsed ${rows.length} rows (${rows[0].date} .. ${rows[rows.length - 1].date})`);
 
