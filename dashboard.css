@@ -197,59 +197,10 @@
       cursor: default;
     }
 
-    .sidenav {
-      position: fixed;
-      left: 12px;
-      top: 120px;
-      width: 150px;
-      display: none;
-      flex-direction: column;
-      gap: 2px;
-      z-index: 25;
-    }
-
-    @media (min-width: 1520px) {
-      .sidenav {
-        display: flex;
-      }
-    }
-
-    /* mid-width screens: show the nav and shift content right of it */
-    @media (min-width: 1240px) and (max-width: 1519.98px) {
-      .sidenav {
-        display: flex;
-        width: 136px;
-      }
-
-      .wrap {
-        margin: 0 auto 0 164px;
-      }
-    }
-
-    .sidenav a {
-      color: var(--ink2);
-      text-decoration: none;
-      font-size: 12.5px;
-      padding: 5px 10px;
-      border-radius: 8px;
-      border-left: 2px solid transparent;
-    }
-
-    .sidenav a:hover {
-      background: var(--surface);
-    }
-
-    .sidenav a.active {
-      color: var(--ink);
-      font-weight: 600;
-      border-left-color: var(--net);
-      background: var(--surface);
-    }
-
     .card,
     .kpis,
     .grid2 {
-      scroll-margin-top: 130px;
+      scroll-margin-top: 170px;
     }
 
     .pager .pinfo {
@@ -568,34 +519,386 @@
       padding: 5px 8px;
     }
 
-    /* month stepper: ‹ Nov 2026 › */
-    .filters .stepper {
+    .banner.warn {
+      border-left-color: var(--bad);
+    }
+
+    [hidden] {
+      display: none !important;
+    }
+
+    /* ---- tabs: a row under the header on wide screens, a bottom bar on phones ---- */
+    .tabs {
+      display: flex;
+      gap: 4px;
+      margin-top: 8px;
+      border-bottom: 1px solid var(--grid);
+    }
+
+    .tabs button {
       display: inline-flex;
       align-items: center;
-      gap: 2px;
-      margin-right: 6px;
+      gap: 7px;
+      border: 0;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -1px;
+      background: none;
+      color: var(--ink2);
+      padding: 8px 12px;
+      cursor: pointer;
+      font: inherit;
+      font-size: 13.5px;
     }
 
-    .filters .stepper button {
-      padding: 5px 11px;
+    .tabs button svg {
+      width: 17px;
+      height: 17px;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 1.8;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .tabs button:hover {
+      color: var(--ink);
+    }
+
+    .tabs button.active {
+      color: var(--ink);
+      font-weight: 650;
+      border-bottom-color: var(--net);
+    }
+
+    .tabs button:focus-visible,
+    .monthbar button:focus-visible,
+    .catrow:focus-visible {
+      outline: 2px solid var(--net);
+      outline-offset: 2px;
+    }
+
+    .stickybar {
+      border-bottom: 0;
+      padding-bottom: 8px;
+    }
+
+    /* ---- This month: month stepper ---- */
+    .monthbar {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      margin-top: 10px;
+    }
+
+    .monthbar button:not(.hbtn) {
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--ink2);
+      border-radius: 999px;
+      width: 34px;
+      height: 32px;
+      cursor: pointer;
+      font: inherit;
+      font-size: 17px;
       font-weight: 700;
-      line-height: 1.2;
+      line-height: 1;
     }
 
-    .filters .stepper button:disabled {
+    .monthbar button:disabled {
       opacity: .35;
       cursor: default;
     }
 
+    .monthbar .hbtn {
+      margin-left: 8px;
+      border-radius: 999px;
+      padding: 5px 12px;
+    }
+
     #monthLabel {
-      min-width: 86px;
+      min-width: 104px;
       text-align: center;
-      font-size: 13.5px;
+      font-size: 16px;
       font-weight: 650;
       color: var(--ink);
       font-variant-numeric: tabular-nums;
     }
 
-    .banner.warn {
-      border-left-color: var(--bad);
+    /* ---- This month: category rows ---- */
+    .catlist {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .catrow {
+      display: grid;
+      grid-template-columns: 1fr auto 44px;
+      align-items: baseline;
+      column-gap: 10px;
+      row-gap: 5px;
+      padding: 9px 4px;
+      border: 0;
+      border-bottom: 1px solid var(--grid);
+      background: none;
+      color: var(--ink);
+      font: inherit;
+      font-size: 13.5px;
+      text-align: left;
+      cursor: pointer;
+      border-radius: 6px;
+    }
+
+    .catrow:last-child {
+      border-bottom: 0;
+    }
+
+    .catrow:hover {
+      background: color-mix(in srgb, var(--ink) 4%, transparent);
+    }
+
+    .catrow .name {
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .catrow .dot {
+      display: inline-block;
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      margin-right: 8px;
+    }
+
+    .catrow .amt {
+      font-variant-numeric: tabular-nums;
+      font-weight: 600;
+    }
+
+    .catrow .pct {
+      color: var(--muted);
+      font-size: 12px;
+      text-align: right;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .catrow .bar {
+      grid-column: 1 / -1;
+      height: 6px;
+      border-radius: 3px;
+      background: var(--grid);
+      overflow: hidden;
+    }
+
+    .catrow .bar i {
+      display: block;
+      height: 100%;
+      border-radius: 3px;
+    }
+
+    /* ---- This month: latest transactions ---- */
+    .txlist {
+      list-style: none;
+      margin: 0 0 12px;
+      padding: 0;
+    }
+
+    .txlist li {
+      display: grid;
+      grid-template-columns: 54px 1fr auto;
+      gap: 10px;
+      align-items: baseline;
+      padding: 8px 0;
+      border-bottom: 1px solid var(--grid);
+      font-size: 13.5px;
+    }
+
+    .txlist .d {
+      color: var(--muted);
+      font-size: 12px;
+      white-space: nowrap;
+    }
+
+    .txlist .what {
+      min-width: 0;
+    }
+
+    .txlist .what b {
+      font-weight: 600;
+    }
+
+    .txlist .what small {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .txlist .amt {
+      font-variant-numeric: tabular-nums;
+      white-space: nowrap;
+    }
+
+    .txlist .amt.inc {
+      color: var(--good);
+    }
+
+    /* ---- phones ---- */
+    @media (max-width: 720px) {
+      body {
+        /* room for the bottom tab bar */
+        padding-bottom: calc(62px + env(safe-area-inset-bottom, 0px));
+      }
+
+      .wrap {
+        padding: 0 12px 24px;
+      }
+
+      .stickybar {
+        padding: 10px 0 8px;
+      }
+
+      header.top {
+        gap: 8px;
+        margin-bottom: 0;
+        align-items: center;
+      }
+
+      header.top h1 {
+        font-size: 17px;
+      }
+
+      /* the long data-source label moves to its own line */
+      header.top .sub {
+        order: 5;
+        flex-basis: 100%;
+        font-size: 11px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .hbtn {
+        padding: 7px 10px;
+      }
+
+      .tabs {
+        position: fixed;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 40;
+        margin: 0;
+        gap: 0;
+        background: var(--surface);
+        border-top: 1px solid var(--grid);
+        border-bottom: 0;
+        padding-bottom: env(safe-area-inset-bottom, 0px);
+      }
+
+      .tabs button {
+        flex: 1;
+        flex-direction: column;
+        gap: 3px;
+        margin: 0;
+        padding: 9px 4px 8px;
+        border-bottom: 0;
+        border-top: 2px solid transparent;
+        font-size: 11.5px;
+      }
+
+      .tabs button.active {
+        border-top-color: var(--net);
+        color: var(--net);
+      }
+
+      .tabs button svg {
+        width: 21px;
+        height: 21px;
+      }
+
+      .monthbar {
+        margin-top: 8px;
+      }
+
+      .monthbar button:not(.hbtn) {
+        width: 42px;
+        height: 38px;
+      }
+
+      #monthLabel {
+        flex: 1;
+      }
+
+      /* one swipeable row instead of three wrapped ones */
+      .filters {
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        margin-top: 8px;
+        padding-bottom: 4px;
+        scrollbar-width: none;
+      }
+
+      .filters::-webkit-scrollbar {
+        display: none;
+      }
+
+      .filters>* {
+        flex: none;
+      }
+
+      .filters button,
+      .filters select,
+      .filters input[type="date"] {
+        padding: 7px 12px;
+        font-size: 13px;
+      }
+
+      .kpis {
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+        margin-bottom: 10px;
+      }
+
+      .kpi {
+        padding: 11px 12px;
+      }
+
+      .kpi .val {
+        font-size: 20px;
+      }
+
+      .kpi:last-child:nth-child(odd) {
+        grid-column: 1 / -1;
+      }
+
+      .card {
+        padding: 13px 12px;
+        margin-bottom: 10px;
+      }
+
+      .card .chartbox,
+      .card .chartbox.tall {
+        height: 260px;
+      }
+
+      th,
+      td {
+        padding: 7px 6px;
+        font-size: 12.5px;
+      }
+
+      /* below 16px iOS zooms the page when the field gets focus */
+      .txcontrols input[type="search"] {
+        flex-basis: 100%;
+        padding: 8px 10px;
+        font-size: 16px;
+      }
+
+      .pager button {
+        padding: 7px 12px;
+      }
     }

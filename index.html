@@ -3,27 +3,20 @@
 
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>Money Manager — Income/Expense Dashboard</title>
+  <meta name="theme-color" content="#f9f9f7" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#0d0d0d" media="(prefers-color-scheme: dark)">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Money">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
   <link rel="stylesheet" href="dashboard.css">
 </head>
 
 <body>
-  <nav class="sidenav" id="sidenav">
-    <a href="#kpis">Overview</a>
-    <a href="#sec-insights">This month</a>
-    <a href="#sec-cashflow">Cash flow</a>
-    <a href="#sec-categories">Categories</a>
-    <a href="#sec-expstack">Category stack</a>
-    <a href="#sec-yoy">Year over year</a>
-    <a href="#sec-income">Income sources</a>
-    <a href="#sec-trend">Category trend</a>
-    <a href="#sec-cumnet">Cumulative</a>
-    <a href="#sec-fixedvar">Fixed vs variable</a>
-    <a href="#sec-heatmap">Heatmap</a>
-    <a href="#sec-topexp">Top expenses</a>
-    <a href="#sec-tx">Transactions</a>
-  </nav>
   <div class="wrap">
     <div class="stickybar">
       <header class="top">
@@ -35,158 +28,210 @@
         <button class="hbtn" id="clearBtn" style="display:none"
           title="Discard the loaded file and go back to the data embedded in this page">✕ use embedded data</button>
         <button class="hbtn" id="themeBtn">◐ theme</button>
-        <input type="file" id="fileInput" accept=".xls,.xlsx,.html,.htm,.json" hidden>
+        <!-- no accept filter: phone file pickers grey out the app's .xls export when its MIME type is not the one they expect -->
+        <input type="file" id="fileInput" hidden>
       </header>
 
-      <div class="filters" id="filters"></div>
-    </div>
-    <div class="banner" id="noData" style="display:none">
-      No data embedded yet. Open <b>PC Manager</b> in the Money Manager phone app, then run <code>export.ps1</code>.
+      <nav class="tabs" id="tabs" role="tablist" aria-label="Views">
+        <button role="tab" data-tab="month" id="tabbtn-month" aria-controls="tab-month">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15" rx="2.5" /><path d="M3.5 10h17M8 3v4M16 3v4" /></svg>
+          <span>This month</span>
+        </button>
+        <button role="tab" data-tab="trends" id="tabbtn-trends" aria-controls="tab-trends">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 20.5h17M5 16l4.5-5 4 3.5L19 7" /><path d="M15 7h4v4" /></svg>
+          <span>Trends</span>
+        </button>
+        <button role="tab" data-tab="tx" id="tabbtn-tx" aria-controls="tab-tx">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8.5 6.5h12M8.5 12h12M8.5 17.5h12" /><path d="M3.8 6.5h.4M3.8 12h.4M3.8 17.5h.4" /></svg>
+          <span>Transactions</span>
+        </button>
+      </nav>
+
+      <!-- This month: one calendar month at a time -->
+      <div class="monthbar" id="monthBar">
+        <button id="monthPrev" title="Previous month" aria-label="Previous month">‹</button>
+        <span id="monthLabel" aria-live="polite"></span>
+        <button id="monthNext" title="Next month" aria-label="Next month">›</button>
+        <button id="monthNow" class="hbtn" title="Jump to the current month">Today</button>
+      </div>
+      <!-- Trends + Transactions: one shared period -->
+      <div class="filters" id="filters" hidden></div>
     </div>
 
+    <div class="banner" id="noData" style="display:none">
+      No data yet. Export the Excel file from the Money Manager app, then use <b>⤒ load data</b> and pick that file.
+    </div>
     <div class="banner warn" id="staleData" style="display:none"></div>
 
-    <div class="kpis" id="kpis"></div>
+    <!-- ================= This month ================= -->
+    <section class="tabpanel" id="tab-month" role="tabpanel" aria-labelledby="tabbtn-month">
+      <div class="kpis" id="monthKpis"></div>
 
-    <div class="card" id="sec-insights">
-      <h2>This month at a glance</h2>
-      <p class="cap" id="insightsCap"></p>
-      <ul class="insights" id="insights"></ul>
-    </div>
-
-    <div class="card" id="sec-cashflow">
-      <h2>Cash flow</h2>
-      <p class="cap" id="cashflowCap"></p>
-      <div class="chartbox tall"><canvas id="cashflow"></canvas></div>
-    </div>
-
-    <div class="grid2">
-      <div class="card" id="sec-categories">
-        <h2>Where the money goes</h2>
-        <p class="cap" id="donutCap">Expense by category — click a slice to drill into subcategories</p>
-        <button class="backBtn" id="donutBack">← all categories</button>
-        <div class="chartbox"><canvas id="donut"></canvas></div>
+      <div class="card" id="sec-insights">
+        <h2>At a glance</h2>
+        <p class="cap" id="insightsCap"></p>
+        <ul class="insights" id="insights"></ul>
       </div>
-      <div class="card">
-        <h2>Top categories</h2>
-        <p class="cap">Largest expense categories in the selected period</p>
-        <div class="chartbox"><canvas id="topcat"></canvas></div>
-      </div>
-    </div>
 
-    <div class="card" id="sec-expstack">
-      <h2>Expenses by category over time</h2>
-      <p class="cap">Monthly expense stacked by category in the selected period</p>
-      <div class="chartbox tall"><canvas id="expstack"></canvas></div>
-    </div>
+      <div class="card" id="sec-monthcats">
+        <h2>Spending by category</h2>
+        <p class="cap" id="monthCatsCap"></p>
+        <div class="catlist" id="monthCats"></div>
+      </div>
 
-    <div class="grid2">
-      <div class="card" id="sec-yoy">
-        <h2>Year over year</h2>
-        <p class="cap">Monthly expense by year (all data) — latest year highlighted</p>
-        <div class="chartbox"><canvas id="yoy"></canvas></div>
+      <div class="card" id="sec-monthtx">
+        <h2>Latest transactions</h2>
+        <p class="cap" id="monthTxCap"></p>
+        <ul class="txlist" id="monthTx"></ul>
+        <button class="hbtn" id="monthTxAll"></button>
       </div>
-      <div class="card" id="sec-income">
-        <h2>Income sources</h2>
-        <p class="cap">Monthly income by category in the selected period</p>
-        <div class="chartbox"><canvas id="incomesrc"></canvas></div>
-      </div>
-    </div>
+    </section>
 
-    <div class="grid2">
-      <div class="card" id="sec-trend">
-        <h2>Category trend</h2>
-        <p class="cap">Monthly spend for one category across all data — pick below or click a bar in “Top categories”
-        </p>
-        <select id="trendSel" class="hbtn" style="margin-bottom:8px"></select>
-        <div class="chartbox"><canvas id="cattrend"></canvas></div>
-      </div>
-      <div class="card">
-        <h2>Weekday pattern</h2>
-        <p class="cap">Average expense per day of week in the selected period</p>
-        <div class="chartbox"><canvas id="weekday"></canvas></div>
-      </div>
-    </div>
+    <!-- ================= Trends ================= -->
+    <section class="tabpanel" id="tab-trends" role="tabpanel" aria-labelledby="tabbtn-trends" hidden>
+      <div class="kpis" id="kpis"></div>
 
-    <div class="card" id="sec-cumnet">
-      <h2>Cumulative savings</h2>
-      <p class="cap">Running total of net (income − expense) per month in the selected period</p>
-      <div class="chartbox"><canvas id="cumnet"></canvas></div>
-    </div>
-
-    <div class="card" id="sec-fixedvar">
-      <h2>Fixed vs variable spending</h2>
-      <p class="cap">Categories with steady monthly amounts count as committed (fixed) spending</p>
-      <div id="fixedShare"></div>
-      <div class="fixedvar" id="fixedvar"></div>
-    </div>
-
-    <div class="card" id="sec-heatmap">
-      <h2>Daily spending heatmap</h2>
-      <p class="cap" id="hmCap"></p>
-      <div class="hm">
-        <div class="hmgrid" id="hmgrid"></div>
+      <div class="card" id="sec-cashflow">
+        <h2>Cash flow</h2>
+        <p class="cap" id="cashflowCap"></p>
+        <div class="chartbox tall"><canvas id="cashflow"></canvas></div>
       </div>
-      <div class="hmlegend" id="hmlegend"></div>
-    </div>
 
-    <div class="card" id="sec-topexp">
-      <h2>Top expenses</h2>
-      <p class="cap">Largest single transactions in the selected period — click a header to sort</p>
-      <div style="overflow-x:auto">
-        <table id="topTable">
-          <thead>
-            <tr>
-              <th data-k="date">Date</th>
-              <th data-k="category">Category</th>
-              <th data-k="subCategory">Subcategory</th>
-              <th data-k="content">Note</th>
-              <th class="num" data-k="amount">Amount</th>
-            </tr>
-          </thead>
-          <tbody></tbody>
-        </table>
+      <div class="grid2">
+        <div class="card" id="sec-categories">
+          <h2>Where the money goes</h2>
+          <p class="cap" id="donutCap">Expense by category — click a slice to drill into subcategories</p>
+          <button class="backBtn" id="donutBack">← all categories</button>
+          <div class="chartbox"><canvas id="donut"></canvas></div>
+        </div>
+        <div class="card">
+          <h2>Top categories</h2>
+          <p class="cap">Largest expense categories in the selected period</p>
+          <div class="chartbox"><canvas id="topcat"></canvas></div>
+        </div>
       </div>
-    </div>
 
-    <div class="card" id="sec-tx">
-      <h2>All transactions</h2>
-      <p class="cap">Search and filter every transaction in the selected period</p>
-      <div class="txcontrols">
-        <input type="search" id="txSearch" placeholder="Search note, category…">
-        <select id="txType" class="hbtn">
-          <option value="">All types</option>
-          <option>Expense</option>
-          <option>Income</option>
-        </select>
-        <select id="txCat" class="hbtn">
-          <option value="">All categories</option>
-        </select>
-        <span class="legendnote" id="txCount"></span>
+      <div class="card" id="sec-expstack">
+        <h2>Expenses by category over time</h2>
+        <p class="cap">Monthly expense stacked by category in the selected period</p>
+        <div class="chartbox tall"><canvas id="expstack"></canvas></div>
       </div>
-      <div style="overflow-x:auto">
-        <table id="txTable">
-          <thead>
-            <tr>
-              <th data-k="date">Date</th>
-              <th data-k="type">Type</th>
-              <th data-k="category">Category</th>
-              <th data-k="subCategory">Subcategory</th>
-              <th data-k="content">Note</th>
-              <th class="num" data-k="amount">Amount</th>
-            </tr>
-          </thead>
-          <tbody></tbody>
-        </table>
+
+      <div class="grid2">
+        <div class="card" id="sec-yoy">
+          <h2>Year over year</h2>
+          <p class="cap">Monthly expense by year (all data) — latest year highlighted</p>
+          <div class="chartbox"><canvas id="yoy"></canvas></div>
+        </div>
+        <div class="card" id="sec-income">
+          <h2>Income sources</h2>
+          <p class="cap">Monthly income by category in the selected period</p>
+          <div class="chartbox"><canvas id="incomesrc"></canvas></div>
+        </div>
       </div>
-      <div class="pager" id="txPager"></div>
-    </div>
+
+      <div class="grid2">
+        <div class="card" id="sec-trend">
+          <h2>Category trend</h2>
+          <p class="cap">Monthly spend for one category across all data — pick below or click a bar in “Top categories”
+          </p>
+          <select id="trendSel" class="hbtn" style="margin-bottom:8px"></select>
+          <div class="chartbox"><canvas id="cattrend"></canvas></div>
+        </div>
+        <div class="card">
+          <h2>Weekday pattern</h2>
+          <p class="cap">Average expense per day of week in the selected period</p>
+          <div class="chartbox"><canvas id="weekday"></canvas></div>
+        </div>
+      </div>
+
+      <div class="card" id="sec-cumnet">
+        <h2>Cumulative savings</h2>
+        <p class="cap">Running total of net (income − expense) per month in the selected period</p>
+        <div class="chartbox"><canvas id="cumnet"></canvas></div>
+      </div>
+
+      <div class="card" id="sec-fixedvar">
+        <h2>Fixed vs variable spending</h2>
+        <p class="cap">Categories with steady monthly amounts count as committed (fixed) spending</p>
+        <div id="fixedShare"></div>
+        <div class="fixedvar" id="fixedvar"></div>
+      </div>
+
+      <div class="card" id="sec-heatmap">
+        <h2>Daily spending heatmap</h2>
+        <p class="cap" id="hmCap"></p>
+        <div class="hm">
+          <div class="hmgrid" id="hmgrid"></div>
+        </div>
+        <div class="hmlegend" id="hmlegend"></div>
+      </div>
+
+      <div class="card" id="sec-topexp">
+        <h2>Top expenses</h2>
+        <p class="cap">Largest single transactions in the selected period — click a header to sort</p>
+        <div style="overflow-x:auto">
+          <table id="topTable">
+            <thead>
+              <tr>
+                <th data-k="date">Date</th>
+                <th data-k="category">Category</th>
+                <th data-k="subCategory">Subcategory</th>
+                <th data-k="content">Note</th>
+                <th class="num" data-k="amount">Amount</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= Transactions ================= -->
+    <section class="tabpanel" id="tab-tx" role="tabpanel" aria-labelledby="tabbtn-tx" hidden>
+      <div class="card" id="sec-tx">
+        <h2>All transactions</h2>
+        <p class="cap">Search and filter every transaction in the selected period</p>
+        <div class="txcontrols">
+          <input type="search" id="txSearch" placeholder="Search note, category…">
+          <select id="txType" class="hbtn">
+            <option value="">All types</option>
+            <option>Expense</option>
+            <option>Income</option>
+          </select>
+          <select id="txCat" class="hbtn">
+            <option value="">All categories</option>
+          </select>
+          <span class="legendnote" id="txCount"></span>
+        </div>
+        <div style="overflow-x:auto">
+          <table id="txTable">
+            <thead>
+              <tr>
+                <th data-k="date">Date</th>
+                <th data-k="type">Type</th>
+                <th data-k="category">Category</th>
+                <th data-k="subCategory">Subcategory</th>
+                <th data-k="content">Note</th>
+                <th class="num" data-k="amount">Amount</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+        <div class="pager" id="txPager"></div>
+      </div>
+    </section>
   </div>
 
   <script src="lib/chart.min.js"></script>
   <script src="data/data.js"></script>
   <script src="js/parse.js"></script>
   <script src="js/calc.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/tab-month.js"></script>
+  <script src="js/tab-trends.js"></script>
+  <script src="js/tab-tx.js"></script>
   <script src="js/app.js"></script>
 </body>
 

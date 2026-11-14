@@ -18,8 +18,12 @@ Both write `data/data.js` (what the dashboard loads) plus `data/transactions.csv
 ## Files
 
 - `index.html` + `dashboard.css` — the dashboard page markup and styles. No data, logic or libraries baked in.
-- `js/app.js` — the dashboard logic (filters, charts, tables, file loading).
+- `js/app.js` — wires the page together: data loading, the three tabs, the month stepper and the period filter.
+- `js/tab-month.js`, `js/tab-trends.js`, `js/tab-tx.js` — one file per tab (**This month**, **Trends**, **Transactions**).
+- `js/ui.js` — shared state, formatting and chart helpers used by every tab.
 - `js/parse.js` — the one parser for the app's `.xls` export and `transactions.json`. Plain functions with no DOM, shared by the page and by `convert-xls.js`.
+- `js/calc.js` — date and money calculations. Plain functions, no DOM, no clock ("today" is passed in).
+- `manifest.webmanifest`, `icons/` — lets a phone add the dashboard to its home screen.
 - `lib/chart.min.js` — Chart.js, loaded via `<script src>`.
 - `data/data.js` — the transactions the dashboard loads, also via `<script src>`.
 - `data/transactions.csv` / `data/transactions.json` — same data, portable formats for Excel/other tools.
@@ -36,4 +40,4 @@ If you'd rather work with real CSV+fetch (e.g. to hack on the data loading yours
 
 ## Moving the dashboard
 
-Keep `index.html`, `dashboard.css`, `js/`, `lib/`, and `data/` together (same relative layout) — copy the whole `money-manager` folder if you want to share or archive it elsewhere.
+Keep `index.html`, `dashboard.css`, `manifest.webmanifest`, `js/`, `lib/`, `icons/`, and `data/` together (same relative layout) — copy the whole `money-manager` folder if you want to share or archive it elsewhere.
