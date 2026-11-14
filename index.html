@@ -67,16 +67,42 @@
     <section class="tabpanel" id="tab-month" role="tabpanel" aria-labelledby="tabbtn-month">
       <div class="kpis" id="monthKpis"></div>
 
-      <div class="card" id="sec-insights">
-        <h2>At a glance</h2>
-        <p class="cap" id="insightsCap"></p>
-        <ul class="insights" id="insights"></ul>
+      <div class="card" id="sec-budget">
+        <div class="cardhead">
+          <h2>Budget</h2>
+          <button class="hbtn" id="budgetEdit">Edit budget</button>
+        </div>
+        <div id="budgetBody"></div>
+      </div>
+
+      <div class="card" id="sec-pace">
+        <h2>Spending so far</h2>
+        <p class="cap" id="paceCap"></p>
+        <div class="chartbox"><canvas id="pace"></canvas></div>
       </div>
 
       <div class="card" id="sec-monthcats">
         <h2>Spending by category</h2>
         <p class="cap" id="monthCatsCap"></p>
         <div class="catlist" id="monthCats"></div>
+      </div>
+
+      <div class="card" id="sec-upcoming" hidden>
+        <h2>Coming up</h2>
+        <p class="cap" id="upcomingCap"></p>
+        <ul class="txlist" id="upcoming"></ul>
+      </div>
+
+      <div class="card" id="sec-insights">
+        <h2>At a glance</h2>
+        <p class="cap" id="insightsCap"></p>
+        <ul class="insights" id="insights"></ul>
+      </div>
+
+      <div class="card" id="sec-history">
+        <h2>Last 12 months</h2>
+        <p class="cap" id="historyCap"></p>
+        <div class="history" id="history"></div>
       </div>
 
       <div class="card" id="sec-monthtx">
@@ -224,11 +250,38 @@
     </section>
   </div>
 
+  <dialog class="dlg" id="budgetDialog" aria-labelledby="budgetTitle">
+    <form id="budgetForm">
+      <h2 id="budgetTitle">Monthly budget</h2>
+      <p class="cap">One budget, used for every month. Leave a field empty to not track it. It is saved in this browser
+        only — use Export and Import to copy it to another device.</p>
+      <label class="brow total"><span>Total per month</span><input type="number" inputmode="numeric" min="0" step="1"
+          id="budgetTotal"></label>
+      <p class="cap" id="budgetHint"></p>
+      <div class="dlgtools">
+        <button type="button" class="hbtn" id="budgetSuggest"
+          title="Fill every field with the median month of the last 6 months">Use suggested amounts</button>
+        <button type="button" class="hbtn" id="budgetClear">Clear all</button>
+      </div>
+      <div class="bcats" id="budgetCats"></div>
+      <div class="dlgfoot">
+        <button type="button" class="hbtn" id="budgetExport">Export</button>
+        <button type="button" class="hbtn" id="budgetImport">Import</button>
+        <span class="spacer"></span>
+        <button type="button" class="hbtn" id="budgetCancel">Cancel</button>
+        <button type="submit" class="hbtn primary" id="budgetSave">Save</button>
+      </div>
+      <input type="file" id="budgetFile" hidden>
+    </form>
+  </dialog>
+
   <script src="lib/chart.min.js"></script>
   <script src="data/data.js"></script>
   <script src="js/parse.js"></script>
   <script src="js/calc.js"></script>
+  <script src="js/budget.js"></script>
   <script src="js/ui.js"></script>
+  <script src="js/budget-ui.js"></script>
   <script src="js/tab-month.js"></script>
   <script src="js/tab-trends.js"></script>
   <script src="js/tab-tx.js"></script>

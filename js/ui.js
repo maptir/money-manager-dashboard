@@ -65,6 +65,7 @@
     const net = inc - exp;
     const rate = inc > 0 ? net / inc * 100 : null;
     const today = new Date();
+    today.setHours(0, 0, 0, 0); // whole days only: late in the evening "now" would round up to an extra day
     let days;
     if (p.start) days = Math.max(1, Math.round((Math.min(p.end, today, S.lastDate) - p.start) / 864e5) + 1);
     else days = S.raw.length ? Math.max(1, Math.round((Math.min(today, S.lastDate) - S.raw[ 0 ].d) / 864e5) + 1) : 1;

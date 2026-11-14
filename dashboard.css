@@ -902,3 +902,414 @@
         padding: 7px 12px;
       }
     }
+
+    /* ---- This month: budget ---- */
+    :root {
+      --warn: #946300;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root:where(:not([data-theme="light"])) {
+        --warn: #e3a52b;
+      }
+    }
+
+    :root[data-theme="dark"] {
+      --warn: #e3a52b;
+    }
+
+    .cardhead {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 8px;
+    }
+
+    .cardhead h2 {
+      margin: 0;
+    }
+
+    .goodtxt {
+      color: var(--good);
+    }
+
+    .badtxt {
+      color: var(--bad);
+    }
+
+    .bnote {
+      margin: 0;
+      color: var(--ink2);
+      font-size: 13.5px;
+    }
+
+    .bhead {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .bnum {
+      color: var(--ink2);
+      font-size: 14px;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .bnum b {
+      color: var(--ink);
+      font-size: 26px;
+      font-weight: 650;
+      letter-spacing: -.01em;
+    }
+
+    .chip {
+      border-radius: 999px;
+      padding: 3px 10px;
+      font-size: 12px;
+      font-weight: 650;
+      white-space: nowrap;
+    }
+
+    .chip.ok {
+      color: var(--good);
+      background: color-mix(in srgb, var(--good) 14%, transparent);
+    }
+
+    .chip.ahead {
+      color: var(--warn);
+      background: color-mix(in srgb, var(--warn) 16%, transparent);
+    }
+
+    .chip.over {
+      color: var(--bad);
+      background: color-mix(in srgb, var(--bad) 14%, transparent);
+    }
+
+    /* progress bar with a tick at the usual level for this point of the month */
+    .bbar,
+    .catrow .bar {
+      position: relative;
+      background: var(--grid);
+    }
+
+    .bbar {
+      height: 14px;
+      border-radius: 7px;
+      margin: 10px 0 5px;
+    }
+
+    .bbar .fill {
+      display: block;
+      height: 100%;
+      border-radius: 7px;
+    }
+
+    .bbar.ok .fill,
+    .catrow.ok .bar .fill {
+      background: var(--good);
+    }
+
+    .bbar.ahead .fill,
+    .catrow.ahead .bar .fill {
+      background: var(--s3);
+    }
+
+    .bbar.over .fill,
+    .catrow.over .bar .fill {
+      background: var(--bad);
+    }
+
+    .bbar .mark,
+    .catrow .bar .mark {
+      position: absolute;
+      top: -3px;
+      bottom: -3px;
+      width: 2px;
+      height: auto;
+      margin-left: -1px;
+      background: var(--ink);
+      border-radius: 1px;
+    }
+
+    .bscale {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      color: var(--muted);
+      font-size: 12px;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .bfacts {
+      list-style: none;
+      margin: 10px 0 0;
+      padding: 0;
+    }
+
+    .bfacts li {
+      padding: 5px 0;
+      border-top: 1px solid var(--grid);
+      font-size: 13.5px;
+      color: var(--ink2);
+    }
+
+    .bfacts b {
+      color: var(--ink);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .bfacts b.goodtxt {
+      color: var(--good);
+    }
+
+    .bfacts b.badtxt {
+      color: var(--bad);
+    }
+
+    /* category rows that have a budget */
+    .catrow .bar {
+      overflow: visible;
+    }
+
+    .catrow .bar .fill {
+      max-width: 100%;
+    }
+
+    .catrow .amt small {
+      color: var(--muted);
+      font-weight: 400;
+      font-size: 12px;
+    }
+
+    .catrow.over .pct {
+      color: var(--bad);
+      font-weight: 650;
+    }
+
+    .catrow.ahead .pct {
+      color: var(--warn);
+      font-weight: 650;
+    }
+
+    /* ---- This month: last 12 months ---- */
+    .hcols {
+      position: relative;
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: 4px;
+      align-items: end;
+    }
+
+    .hline {
+      position: absolute;
+      left: 0;
+      right: 0;
+      /* `bottom` is set inline: bars are 96px tall and sit above a 22px label row */
+      border-top: 1.5px dashed var(--bad);
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .hcol {
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+      gap: 0;
+      border: 0;
+      background: none;
+      color: var(--muted);
+      padding: 0;
+      cursor: pointer;
+      font: inherit;
+      font-size: 11px;
+      border-radius: 6px;
+    }
+
+    .hcol .hbar {
+      display: flex;
+      align-items: flex-end;
+      height: 96px;
+      border-radius: 5px;
+    }
+
+    .hcol .hbar i {
+      display: block;
+      width: 100%;
+      min-height: 2px;
+      border-radius: 4px 4px 0 0;
+      background: var(--axis);
+    }
+
+    .hcol.ok .hbar i {
+      background: var(--good);
+    }
+
+    .hcol.over .hbar i {
+      background: var(--bad);
+    }
+
+    .hcol.partial .hbar i {
+      opacity: .55;
+    }
+
+    .hcol .hlbl {
+      height: 22px;
+      line-height: 22px;
+      text-align: center;
+    }
+
+    .hcol:hover .hbar {
+      background: color-mix(in srgb, var(--ink) 5%, transparent);
+    }
+
+    .hcol.sel .hlbl {
+      color: var(--ink);
+      font-weight: 700;
+    }
+
+    .hcol.sel .hbar {
+      background: color-mix(in srgb, var(--net) 14%, transparent);
+    }
+
+    .hcol:focus-visible {
+      outline: 2px solid var(--net);
+      outline-offset: 2px;
+    }
+
+    /* ---- budget dialog ---- */
+    .dlg {
+      width: min(520px, calc(100vw - 24px));
+      max-height: calc(100dvh - 24px);
+      padding: 0;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      background: var(--surface);
+      color: var(--ink);
+    }
+
+    .dlg::backdrop {
+      background: rgba(0, 0, 0, .45);
+    }
+
+    .dlg form {
+      display: flex;
+      flex-direction: column;
+      max-height: calc(100dvh - 26px);
+      padding: 18px 18px 14px;
+    }
+
+    .dlg h2 {
+      font-size: 16px;
+      margin: 0 0 4px;
+    }
+
+    .dlg .cap {
+      color: var(--muted);
+      font-size: 12px;
+      margin: 0 0 10px;
+    }
+
+    .brow {
+      display: grid;
+      grid-template-columns: 1fr 150px;
+      align-items: center;
+      gap: 10px;
+      padding: 5px 0;
+      font-size: 13.5px;
+    }
+
+    .brow span {
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .brow.total {
+      font-weight: 650;
+      margin-bottom: 4px;
+    }
+
+    .brow input {
+      width: 100%;
+      border: 1px solid var(--border);
+      background: var(--page);
+      color: var(--ink);
+      border-radius: 8px;
+      padding: 7px 9px;
+      font: inherit;
+      font-size: 16px; /* below 16px iOS zooms the page when the field gets focus */
+      text-align: right;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .brow input::placeholder {
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .dlgtools {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 8px;
+    }
+
+    .bcats {
+      overflow-y: auto;
+      border-top: 1px solid var(--grid);
+      border-bottom: 1px solid var(--grid);
+      padding: 4px 2px;
+      min-height: 80px;
+    }
+
+    .dlgfoot {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      padding-top: 12px;
+    }
+
+    .dlgfoot .spacer {
+      flex: 1;
+    }
+
+    .hbtn.primary {
+      background: var(--net);
+      border-color: var(--net);
+      color: #fff;
+      font-weight: 650;
+    }
+
+    .hbtn:disabled {
+      opacity: .45;
+      cursor: default;
+    }
+
+    @media (max-width: 720px) {
+      .bnum b {
+        font-size: 22px;
+      }
+
+      .brow {
+        grid-template-columns: 1fr 128px;
+      }
+
+      .hcols {
+        gap: 2px;
+      }
+
+      .hcol {
+        font-size: 10px;
+      }
+    }
+
+    /* nothing loaded yet: only the header and the "load data" hint are useful */
+    body.nodata .tabpanel,
+    body.nodata .monthbar,
+    body.nodata .filters {
+      display: none;
+    }

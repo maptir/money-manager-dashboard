@@ -32,6 +32,7 @@
   function setData(rows, sourceLabel) {
     S.raw = (rows || []).filter(t => (t.type === "Income" || t.type === "Expense") && t.date);
     $("noData").style.display = S.raw.length ? "none" : "block";
+    document.body.classList.toggle("nodata", !S.raw.length); // hides the empty cards (see dashboard.css)
     S.raw.forEach(t => { t.d = new Date(t.date + "T00:00:00"); t.ym = t.date.slice(0, 7); });
     S.raw.sort((a, b) => a.d - b.d);
     const at = {};
